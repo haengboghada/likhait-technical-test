@@ -140,6 +140,7 @@ while current_date <= end_date
       # Add some decimal variation
       amount += rand(0..99) / 100.0
 
+
       # Create the expense with created_at set to the date
       Expense.create!(
         description: template[:description],

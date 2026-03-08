@@ -2,11 +2,12 @@
  * Form component for adding/editing expenses
  */
 
-import React from "react";
-import { ExpenseFormData } from "../types";
+import React, { useState, useEffect } from "react";
+import { ExpenseFormData, Category } from "../types";
 import { EXPENSE_CATEGORIES } from "../constants/categories";
 import { TextField, SelectBox, Button } from "../vibes";
 import { useExpenseForm } from "../hooks/useExpenseForm";
+import { fetchCategories } from "../services/api";
 
 interface ExpenseFormProps {
   initialData?: Partial<ExpenseFormData>;
@@ -27,6 +28,23 @@ export function ExpenseForm({
       onSubmit,
     });
 
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoadingCats, setIsLoadingCats] = useState(true);
+  
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const data = await fetchCategories();
+        setCategories(data);
+      } catch (err) {
+        console.error("Failed to load categories for form", err);
+      } finally {
+        setIsLoadingCats(false);
+      }
+    }
+    loadCategories();
+  }, []);
+
   const formStyle: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
@@ -39,10 +57,12 @@ export function ExpenseForm({
     marginTop: "0.5rem",
   };
 
-  const categoryOptions = EXPENSE_CATEGORIES.map((category) => ({
-    value: category,
-    label: category,
+  const categoryOptions = categories.map((cat) => ({
+    value: cat.name,
+    label: cat.name,
   }));
+
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <form onSubmit={handleSubmit} style={formStyle}>
@@ -87,6 +107,7 @@ export function ExpenseForm({
         error={errors.date}
         fullWidth
         required
+        max={today}
       />
 
       <div style={buttonGroupStyle}>

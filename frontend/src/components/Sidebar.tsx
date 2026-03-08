@@ -27,6 +27,23 @@ const Sidebar: React.FC<SidebarProps> = ({
     transition: "width 0.1s ease",
   };
 
+  const getNavItemStyle = (pageName: string): React.CSSProperties => ({
+    width: "100%",
+    padding: isCollapsed ? "16px" : "16px 24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: isCollapsed ? "center" : "flex-start",
+    gap: "16px",
+    background: currentPage === pageName ? COLORS.primary.p03 : "transparent",
+    border: "none",
+    cursor: "pointer",
+    fontSize: "18px",
+    fontWeight: 500,
+    color: COLORS.primary.p09,
+    textAlign: "left",
+    transition: "background 0.2s",
+  });
+
   const headerStyle: React.CSSProperties = {
     padding: "24px 16px",
     display: "flex",
@@ -167,6 +184,23 @@ const Sidebar: React.FC<SidebarProps> = ({
             <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
           <span style={navTextStyle}>History</span>
+        </button>
+
+        {/* --- Categories Navigation Item --- */}
+        <button
+          style={getNavItemStyle("categories")}
+          onClick={() => onNavigate?.("categories")}
+          onMouseEnter={(e) => {
+            if (currentPage !== "categories") e.currentTarget.style.background = COLORS.primary.p02;
+          }}
+          onMouseLeave={(e) => {
+            if (currentPage !== "categories") e.currentTarget.style.background = "transparent";
+          }}
+        >
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+          </svg>
+          <span style={navTextStyle}>Categories</span>
         </button>
       </nav>
     </aside>

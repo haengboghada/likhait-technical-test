@@ -8,12 +8,23 @@ FROM ruby:$RUBY_VERSION-slim
 WORKDIR /rails
 
 # Install base packages
+# Added libyaml-dev for 'psych' and pkg-config for gem compilation
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential ca-certificates default-mysql-client default-libmysqlclient-dev git && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+    apt-get install --no-install-recommends -y \
+    build-essential \
+    ca-certificates \
+    default-mysql-client \
+    default-libmysqlclient-dev \
+    libyaml-dev \
+    pkg-config \
+    git && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Install application gems
 COPY Gemfile Gemfile.lock ./
+
+# Ensure bundler is the version expected by the lockfile
+RUN gem install bundler -v $(tail -n 1 Gemfile.lock | tr -d ' ')
 
 # Configure bundler and install gems with retry logic
 RUN bundle config set --local deployment 'false' && \

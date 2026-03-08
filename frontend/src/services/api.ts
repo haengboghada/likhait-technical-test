@@ -2,7 +2,7 @@
  * API service for communicating with the backend
  */
 
-import { Expense, ExpenseFormData } from "../types";
+import { Expense, ExpenseFormData, Category } from "../types";
 
 const API_BASE_URL = "http://localhost:3000/api";
 
@@ -108,5 +108,59 @@ export async function deleteExpense(id: number): Promise<void> {
 
   if (!response.ok) {
     throw new Error("Failed to delete expense");
+  }
+}
+
+/**
+ * Create a new category
+ */
+export async function createCategory(name: string): Promise<Category> {
+  const response = await fetch(`${API_BASE_URL}/categories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ category: { name } }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.errors?.[0] || "Failed to create category");
+  }
+
+  return response.json();
+}
+
+/**
+ * Update a category name
+ */
+export async function updateCategory(id: number, name: string): Promise<Category> {
+  const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ category: { name } }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Failed to update category");
+  }
+
+  return response.json();
+}
+
+/**
+ * Delete a category
+ */
+export async function deleteCategory(id: number): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/categories/${id}`, {
+    method: "DELETE",
+  });
+
+  if (response.status === 409 || !response.ok) {
+    // Handling the "ON DELETE RESTRICT" case from your SQL
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || "Cannot delete category while expenses are linked to it");
   }
 }
